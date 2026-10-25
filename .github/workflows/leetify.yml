@@ -1,0 +1,29 @@
+name: Update CS2 stats
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"   # every 15 minutes
+  workflow_dispatch:          # lets you press "Run workflow" by hand
+
+permissions:
+  contents: read
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Firebase library
+        run: npm install firebase-admin@13 --no-save --no-audit --no-fund
+
+      - name: Fetch Leetify stats and save to Firebase
+        run: node scripts/fetch-leetify.mjs
+        env:
+          LEETIFY_API_KEY: ${{ secrets.LEETIFY_API_KEY }}
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          FIREBASE_DATABASE_URL: ${{ secrets.FIREBASE_DATABASE_URL }}
